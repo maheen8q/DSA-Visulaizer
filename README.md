@@ -18,7 +18,7 @@ Interactive step-by-step visualizations for sorting, searching, data structures,
 ### 1. Clone the repo
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/maheen8q/DSA-Visulaizer
 cd dsa-visualizer
 ```
 
