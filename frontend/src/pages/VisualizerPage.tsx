@@ -3,6 +3,7 @@ import { getById } from "../data/algorithms";
 
 // Each person plugs their visualizer in here as they build it
 // import SortingVisualizer from "../components/sorting/SortingVisualizer";
+import GraphVisualizer from "../components/graphs/GraphVisualizer";
 
 export default function VisualizerPage() {
   const { algorithmId } = useParams<{ algorithmId: string }>();
@@ -36,9 +37,17 @@ export default function VisualizerPage() {
         {/* ── CANVAS AREA ── each visualizer renders here */}
         <main className="flex-1 flex items-center justify-center p-8">
           {/* TODO: swap this placeholder for the real visualizer component */}
-          <div className="text-gray-300 dark:text-gray-700 text-sm border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl w-full h-96 flex items-center justify-center">
-            {meta.name} visualizer coming soon
-          </div>
+          
+        {meta.category === "graphs" ? (
+  <GraphVisualizer algorithmId={algorithmId!} />
+) : (
+  <div className="text-gray-300 dark:text-gray-700 text-sm border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl w-full h-96 flex items-center justify-center">
+    {meta.name} visualizer coming soon
+  </div>
+)}
+
+
+
         </main>
 
         {/* ── RIGHT PANEL ── controls + explanation + theory */}
