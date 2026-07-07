@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import GraphCanvas from "./GraphCanvas";
 import GraphControls from "./GraphControls";
 import { bfs } from "../../algorithms/graphs/bfs";
+import { dfs } from "../../algorithms/graphs/dfs";
 
 type GraphVisualizerProps = {
   algorithmId: string;
@@ -18,12 +19,14 @@ const testGraph = {
 export default function GraphVisualizer({ algorithmId }: GraphVisualizerProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  // useMemo avoids recomputing BFS on every render — only reruns if algorithmId changes
+  // useMemo avoids recomputing BFS on every render, only reruns if algorithmId changes
   const steps = useMemo(() => {
     if (algorithmId === "bfs") {
       return bfs(testGraph, "A");
     }
-    // dfs/dijkstra branches go here once you build them
+   if (algorithmId === "dfs") {
+  return dfs(testGraph, "A");
+}
     return [];
   }, [algorithmId]);
 
