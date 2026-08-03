@@ -1,25 +1,53 @@
 import type { GraphStep } from "../../types/steps";
 
-// Hardcoded positions for our test graph — later this could be computed automatically,
-// but for now we just need something to look at.
-const nodePositions: Record<string, { x: number; y: number }> = {
-  A: { x: 150, y: 50 },
-  B: { x: 50, y: 150 },
-  C: { x: 250, y: 150 },
-  D: { x: 50, y: 250 },
-};
+type Graph = Record<string, string[]>;
 
-const edges: [string, string][] = [
-  ["A", "B"],
-  ["A", "C"],
-  ["B", "D"],
-];
+// Computes evenly-spaced positions around a circle, based on however many
+// nodes actually exist, no more hardcoding coordinates per node.
+function computeNodePositions(nodeIds: string[]): Record<string, { x: number; y: number }> {
+  const centerX = 150;
+  const centerY = 150;
+  const radius = 100;
+  const positions: Record<string, { x: number; y: number }> = {};
+
+  nodeIds.forEach((id, index) => {
+    const angle = (index / nodeIds.length) * 2 * Math.PI;
+    positions[id] = {
+      x: centerX + radius * Math.cos(angle),
+      y: centerY + radius * Math.sin(angle),
+    };
+  });
+
+  return positions;
+}
+
+// avoids drawing A-B and B-A as two separate lines.
+function computeEdges(graph: Graph): [string, string][] {
+  const edges: [string, string][] = [];
+
+  Object.entries(graph).forEach(([from, neighbors]) => {
+    neighbors.forEach((to) => {
+      const alreadyExists = edges.some(
+        ([a, b]) => (a === from && b === to) || (a === to && b === from)
+      );
+      if (!alreadyExists) {
+        edges.push([from, to]);
+      }
+    });
+  });
+
+  return edges;
+}
 
 type GraphCanvasProps = {
   step: GraphStep;
+  graph: Graph;
 };
 
-export default function GraphCanvas({ step }: GraphCanvasProps) {
+export default function GraphCanvas({ step, graph }: GraphCanvasProps) {
+  const nodePositions = computeNodePositions(Object.keys(graph));
+  const edges = computeEdges(graph);
+
   return (
     <svg width="300" height="300" className="bg-gray-950 rounded-xl">
       {/* Draw edges first, so nodes appear on top of them */}

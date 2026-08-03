@@ -11,9 +11,11 @@ type GraphVisualizerProps = {
 // Same test graph we used earlier — later this can come from user input
 const testGraph = {
   A: ["B", "C"],
-  B: ["A", "D"],
-  C: ["A"],
+  B: ["A", "D", "E"],
+  C: ["A", "F"],
   D: ["B"],
+  E: ["B", "F"],
+  F: ["C", "E"],
 };
 
 export default function GraphVisualizer({ algorithmId }: GraphVisualizerProps) {
@@ -59,7 +61,7 @@ export default function GraphVisualizer({ algorithmId }: GraphVisualizerProps) {
   ))}
 </select>
 
-      <GraphCanvas step={currentStep} />
+      <GraphCanvas step={currentStep} graph={testGraph} />
       <GraphControls
         currentStep={currentStepIndex}
         totalSteps={steps.length}
