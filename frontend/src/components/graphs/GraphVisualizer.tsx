@@ -8,36 +8,55 @@ type GraphVisualizerProps = {
   algorithmId: string;
 };
 
-// Same test graph we used earlier — later this can come from user input
-const testGraph = {
-  A: ["B", "C"],
-  B: ["A", "D", "E"],
-  C: ["A", "F"],
-  D: ["B"],
-  E: ["B", "F"],
-  F: ["C", "E"],
+const presetGraphs: Record<string, Record<string, string[]>> = {
+  simple: {
+    A: ["B", "C"],
+    B: ["A", "D"],
+    C: ["A"],
+    D: ["B"],
+  },
+  medium: {
+    A: ["B", "C"],
+    B: ["A", "D", "E"],
+    C: ["A", "F"],
+    D: ["B"],
+    E: ["B", "F"],
+    F: ["C", "E"],
+  },
+  disconnected: {
+    A: ["B"],
+    B: ["A"],
+    C: ["D"],
+    D: ["C"],
+  },
 };
 
 export default function GraphVisualizer({ algorithmId }: GraphVisualizerProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [startNode, setStartNode] = useState("A");
   const [isPlaying, setIsPlaying] = useState(false);
+  const [selectedGraphKey, setSelectedGraphKey] = useState("medium");
+  const graph = presetGraphs[selectedGraphKey];
 
   // useMemo avoids recomputing BFS on every render, only reruns if algorithmId changes
-  const steps = useMemo(() => {
-    if (algorithmId === "bfs") {
-      return bfs(testGraph, startNode);
-    }
-   if (algorithmId === "dfs") {
-  return dfs(testGraph, startNode);
-}
-    return [];
-  }, [algorithmId, startNode]);
+const steps = useMemo(() => {
+  if (algorithmId === "bfs") {
+    return bfs(graph, startNode);
+  }
+  if (algorithmId === "dfs") {
+    return dfs(graph, startNode);
+  }
+  return [];
+}, [algorithmId, startNode, graph]);
 
-   useEffect(() => {
-    // Reset to the first step whenever the algorithm changes
-    setCurrentStepIndex(0);
-  }, [startNode]);
+useEffect(() => {
+  setStartNode(Object.keys(graph)[0]);
+}, [graph]);
+
+useEffect(() => {
+  setCurrentStepIndex(0);
+}, [startNode]);
+
 
   const currentStep = steps[currentStepIndex];
 
@@ -53,7 +72,7 @@ export default function GraphVisualizer({ algorithmId }: GraphVisualizerProps) {
       }
       return prev + 1;
     });
-  }, 800); // milliseconds between steps — adjust to taste
+  }, 800); // milliseconds between steps, adjust to taste
 
   return () => clearInterval(interval); // cleanup: stop the timer if isPlaying changes or component unmounts
 }, [isPlaying, steps]);
@@ -67,19 +86,31 @@ export default function GraphVisualizer({ algorithmId }: GraphVisualizerProps) {
   return (
     <div className="flex flex-col items-center gap-6">
 
+      <select
+      value={selectedGraphKey}
+      onChange={(e) => setSelectedGraphKey(e.target.value)}
+      className="px-3 py-2 bg-slate-700 text-white rounded"
+    >
+      {Object.keys(presetGraphs).map((key) => (
+        <option key={key} value={key}>
+          {key}
+        </option>
+      ))}
+    </select>
+
     <select
   value={startNode}
   onChange={(e) => setStartNode(e.target.value)}
   className="px-3 py-2 bg-slate-700 text-white rounded"
 >
-  {Object.keys(testGraph).map((node) => (
+  {Object.keys(graph).map((node) => (
     <option key={node} value={node}>
       {node}
     </option>
   ))}
 </select>
 
-      <GraphCanvas step={currentStep} graph={testGraph} />
+      <GraphCanvas step={currentStep} graph={graph} />
       <GraphControls
         currentStep={currentStepIndex}
         totalSteps={steps.length}
