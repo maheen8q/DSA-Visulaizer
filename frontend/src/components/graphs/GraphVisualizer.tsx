@@ -21,6 +21,7 @@ const testGraph = {
 export default function GraphVisualizer({ algorithmId }: GraphVisualizerProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [startNode, setStartNode] = useState("A");
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // useMemo avoids recomputing BFS on every render, only reruns if algorithmId changes
   const steps = useMemo(() => {
@@ -39,6 +40,23 @@ export default function GraphVisualizer({ algorithmId }: GraphVisualizerProps) {
   }, [startNode]);
 
   const currentStep = steps[currentStepIndex];
+
+
+  useEffect(() => {
+  if (!isPlaying) return;
+
+  const interval = setInterval(() => {
+    setCurrentStepIndex((prev) => {
+      if (prev >= steps.length - 1) {
+        setIsPlaying(false); // stop playing once we hit the last step
+        return prev;
+      }
+      return prev + 1;
+    });
+  }, 800); // milliseconds between steps — adjust to taste
+
+  return () => clearInterval(interval); // cleanup: stop the timer if isPlaying changes or component unmounts
+}, [isPlaying, steps]);
 
   if (steps.length === 0) {
     return <p className="text-gray-400">No steps available for this algorithm yet.</p>;
@@ -68,6 +86,21 @@ export default function GraphVisualizer({ algorithmId }: GraphVisualizerProps) {
         onPrev={() => setCurrentStepIndex((s) => Math.max(0, s - 1))}
         onNext={() => setCurrentStepIndex((s) => Math.min(steps.length - 1, s + 1))}
       />
+       
+
+<button
+  onClick={() => {
+    if (currentStepIndex >= steps.length - 1) {
+      setCurrentStepIndex(0);
+    }
+    setIsPlaying((p) => !p);
+  }}
+  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+>
+  {isPlaying ? "Pause" : "Play"}
+</button>
+
+
       <p className="text-sm text-gray-300 italic">{currentStep.message}</p>
     </div>
   );
